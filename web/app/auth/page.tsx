@@ -3,8 +3,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Separator } from "@/components/ui/separator";
-import { Github, Mail, BookOpen, Sparkles, Zap, ArrowLeft, Loader2 } from "lucide-react";
+import { BookOpen, Sparkles, Zap, ArrowLeft, Loader2 } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { useAuth } from "@/contexts/auth-context";
@@ -79,11 +78,6 @@ export default function AuthPage() {
     }
   };
 
-  const handleOAuthLogin = (provider: string) => {
-    // TODO: Implement OAuth login
-    console.log(`Login with ${provider}`);
-  };
-
   const switchMode = () => {
     setMode(mode === "login" ? "register" : "login");
     setError("");
@@ -139,18 +133,6 @@ export default function AuthPage() {
                   <h3 className="font-semibold mb-1">{t("authUi.fastSearch")}</h3>
                   <p className="text-sm text-muted-foreground">
                     {t("authUi.features.fastSearchDesc")}
-                  </p>
-                </div>
-              </div>
-
-              <div className="flex items-start gap-4">
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10">
-                  <Github className="h-5 w-5 text-primary" />
-                </div>
-                <div>
-                  <h3 className="font-semibold mb-1">{t("authUi.features.githubIntegration")}</h3>
-                  <p className="text-sm text-muted-foreground">
-                    {t("authUi.features.githubIntegrationDesc")}
                   </p>
                 </div>
               </div>
@@ -315,38 +297,6 @@ export default function AuthPage() {
                 </Button>
               </form>
             )}
-
-            <div className="relative">
-              <div className="absolute inset-0 flex items-center">
-                <Separator />
-              </div>
-              <div className="relative flex justify-center text-xs uppercase">
-                <span className="bg-background px-2 text-muted-foreground">
-                  {t("authUi.orThirdParty")}
-                </span>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-2 gap-3">
-              <Button
-                variant="outline"
-                onClick={() => handleOAuthLogin("github")}
-                disabled={isLoading}
-                className="gap-2 h-11"
-              >
-                <Github className="h-4 w-4" />
-                GitHub
-              </Button>
-              <Button
-                variant="outline"
-                onClick={() => handleOAuthLogin("google")}
-                disabled={isLoading}
-                className="gap-2 h-11"
-              >
-                <Mail className="h-4 w-4" />
-                Google
-              </Button>
-            </div>
 
             <div className="text-center text-sm text-muted-foreground">
               {mode === "login" ? t("authUi.noAccount") : t("authUi.hasAccount")}{" "}

@@ -44,6 +44,16 @@ public static class SystemSettingDefaults
     ];
 
     /// <summary>
+    /// Default settings for site branding.
+    /// </summary>
+    public static readonly (string Key, string Category, string Description)[] BrandingDefaults =
+    [
+        ("SITE_NAME", "general", "网站显示名称"),
+        ("SITE_LOGO_URL", "general", "LOGO 路径（相对于 public 目录）"),
+        ("SITE_DESCRIPTION", "general", "网站描述（用于 SEO）"),
+    ];
+
+    /// <summary>
     /// Initialize default system settings (only for keys not already in the database).
     /// </summary>
     public static async Task InitializeDefaultsAsync(IConfiguration configuration, IContext context)
@@ -96,6 +106,37 @@ public static class SystemSettingDefaults
                     Id = Guid.NewGuid().ToString(),
                     Key = key,
                     Value = valueToUse,
+                    Description = description,
+                    Category = category,
+                    CreatedAt = DateTime.UtcNow
+                });
+            }
+        }
+
+        if (settingsToAdd.Count > 0)
+        {
+            context.SystemSettings.AddRange(settingsToAdd);
+            hasChanges = true;
+        }
+
+        // Add branding defaults if not present
+        foreach (var (key, category, description) in BrandingDefaults)
+        {
+            if (!existingByKey.ContainsKey(key))
+            {
+                var defaultValue = key switch
+                {
+                    "SITE_NAME" => "OpenDeepWiki",
+                    "SITE_LOGO_URL" => "/favicon.png",
+                    "SITE_DESCRIPTION" => "AI 驱动的代码知识库",
+                    _ => string.Empty
+                };
+
+                settingsToAdd.Add(new SystemSetting
+                {
+                    Id = Guid.NewGuid().ToString(),
+                    Key = key,
+                    Value = defaultValue,
                     Description = description,
                     Category = category,
                     CreatedAt = DateTime.UtcNow

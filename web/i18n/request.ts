@@ -1,14 +1,12 @@
 import { getRequestConfig } from 'next-intl/server';
 
-export const locales = ['zh', 'en', 'ko', 'ja'] as const;
+export const locales = ['zh', 'en'] as const;
 export type Locale = (typeof locales)[number];
-const defaultLocale: Locale = 'en';
+const defaultLocale: Locale = 'zh';
 
 export const localeNames: Record<Locale, string> = {
   zh: '简体中文',
   en: 'English',
-  ko: '한국어',
-  ja: '日本語',
 };
 
 // 动态加载所有翻译文件

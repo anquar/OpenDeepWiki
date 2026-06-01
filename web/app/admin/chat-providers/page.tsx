@@ -56,7 +56,6 @@ import { toast } from "sonner";
 import { useTranslations } from "@/hooks/use-translations";
 
 const PLATFORM_OPTIONS = [
-  { value: "feishu", labelKey: "admin.chatProviders.platformFeishu" },
   { value: "qq", labelKey: "admin.chatProviders.platformQq" },
   { value: "wechat", labelKey: "admin.chatProviders.platformWechat" },
   { value: "slack", labelKey: "admin.chatProviders.platformSlack" },
@@ -74,14 +73,6 @@ interface PlatformFieldDefinition {
 }
 
 const PLATFORM_FIELDS: Record<string, PlatformFieldDefinition[]> = {
-  feishu: [
-    { key: "AppId", labelKey: "admin.chatProviders.fieldAppId", type: "text", required: true },
-    { key: "AppSecret", labelKey: "admin.chatProviders.fieldAppSecret", type: "password", required: true },
-    { key: "VerificationToken", labelKey: "admin.chatProviders.fieldVerificationToken", type: "password" },
-    { key: "EncryptKey", labelKey: "admin.chatProviders.fieldEncryptKey", type: "password" },
-    { key: "ApiBaseUrl", labelKey: "admin.chatProviders.fieldApiBaseUrl", type: "text" },
-    { key: "TokenCacheSeconds", labelKey: "admin.chatProviders.fieldTokenCacheSeconds", type: "number" },
-  ],
   qq: [
     { key: "AppId", labelKey: "admin.chatProviders.fieldAppId", type: "text", required: true },
     { key: "AppSecret", labelKey: "admin.chatProviders.fieldAppSecret", type: "password" },
@@ -129,7 +120,7 @@ export default function AdminChatProvidersPage() {
   const [deletePlatform, setDeletePlatform] = useState<string | null>(null);
   const [rawConfigData, setRawConfigData] = useState("{}");
   const [formData, setFormData] = useState({
-    platform: "feishu",
+    platform: "custom",
     displayName: "",
     isEnabled: true,
     webhookUrl: "",
@@ -161,7 +152,7 @@ export default function AdminChatProvidersPage() {
   }, [fetchData]);
 
   const resetForm = (platform?: string) => {
-    const targetPlatform = platform || "feishu";
+    const targetPlatform = platform || "custom";
     setFormData({
       platform: targetPlatform,
       displayName: "",
@@ -200,7 +191,7 @@ export default function AdminChatProvidersPage() {
 
   const openCreateDialog = () => {
     setEditingConfig(null);
-    resetForm("feishu");
+    resetForm("custom");
     setShowDialog(true);
   };
 

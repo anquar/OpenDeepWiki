@@ -4,7 +4,7 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: "OpenDeepWiki",
-  description: "AI-powered code knowledge base for repository analysis and documentation generation",
+  description: "AI 驱动的代码知识库，用于仓库分析和文档生成",
   icons: {
     icon: "/favicon.png",
   },
@@ -16,7 +16,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="zh" suppressHydrationWarning>
       <body className="antialiased">
         <RouteProviders>{children}</RouteProviders>
       </body>
