@@ -1,4 +1,11 @@
 ﻿services:
+  init-data:
+    image: alpine:latest
+    volumes:
+      - opendeepwiki-data:/data
+    command: sh -c "addgroup -g 1654 app && adduser -D -u 1654 -G app appuser && chown -R appuser:app /data && chmod -R 755 /data"
+    restart: "no"
+
   opendeepwiki:
     image: crpi-j9ha7sxwhatgtvj4.cn-shenzhen.personal.cr.aliyuncs.com/open-deepwiki/opendeepwiki
     build:
@@ -6,6 +13,9 @@
       dockerfile: src/OpenDeepWiki/Dockerfile
     ports:
       - "8080:8080"
+    depends_on:
+      init-data:
+        condition: service_completed_successfully
     restart: unless-stopped
     healthcheck:
       test: ["CMD-SHELL", "curl -f http://localhost:8080/health || exit 1"]
@@ -31,8 +41,8 @@
       - REPOSITORIES_DIRECTORY=/data
 
       # AI 服务配置 (全局默认，用于 Chat 等功能)
-      - CHAT_API_KEY=your-chat-api-key
-      - ENDPOINT=https://api.openai.com/v1
+      - CHAT_API_KEY=sk-d588d46d0d224e74a45662c8451e9faf
+      - ENDPOINT=https://api.deepseek.com
       - CHAT_REQUEST_TYPE=OpenAI
 
       # Graphify artifact generation (optional)
@@ -74,7 +84,7 @@
       # 多语言支持 (逗号分隔，如: en,zh,ja,ko)
       - WIKI_LANGUAGES=en,zh
     volumes:
-      - ./data:/data
+      - opendeepwiki-data:/data
 
   web:
     image: crpi-j9ha7sxwhatgtvj4.cn-shenzhen.personal.cr.aliyuncs.com/open-deepwiki/opendeepwiki-web
@@ -90,3 +100,6 @@
     environment:
       - NODE_ENV=production
       - API_PROXY_URL=http://opendeepwiki:8080
+
+volumes:
+  opendeepwiki-data:
