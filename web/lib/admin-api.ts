@@ -898,68 +898,6 @@ export async function deleteModelConfig(id: string): Promise<void> {
   await fetchWithAuth(url, { method: "DELETE" });
 }
 
-// ==================== Chat Provider API ====================
-
-export interface ChatProviderStatus {
-  platform: string;
-  displayName: string;
-  isEnabled: boolean;
-  isRegistered: boolean;
-  webhookUrl?: string;
-  messageInterval: number;
-  maxRetryCount: number;
-}
-
-export interface ChatProviderConfig {
-  platform: string;
-  displayName: string;
-  isEnabled: boolean;
-  configData: string;
-  webhookUrl?: string;
-  messageInterval: number;
-  maxRetryCount: number;
-}
-
-export async function getChatProviderConfigs(): Promise<ChatProviderStatus[]> {
-  const url = buildApiUrl("/api/chat/admin/providers");
-  const result = await fetchWithAuth(url);
-  return Array.isArray(result) ? result : result.data ?? [];
-}
-
-export async function getChatProviderConfig(platform: string): Promise<ChatProviderConfig> {
-  const url = buildApiUrl(`/api/chat/admin/providers/${platform}`);
-  const result = await fetchWithAuth(url);
-  return result.data ?? result;
-}
-
-export async function saveChatProviderConfig(data: ChatProviderConfig): Promise<void> {
-  const url = buildApiUrl("/api/chat/admin/providers");
-  await fetchWithAuth(url, {
-    method: "POST",
-    body: JSON.stringify(data),
-  });
-}
-
-export async function deleteChatProviderConfig(platform: string): Promise<void> {
-  const url = buildApiUrl(`/api/chat/admin/providers/${platform}`);
-  await fetchWithAuth(url, { method: "DELETE" });
-}
-
-export async function enableChatProvider(platform: string): Promise<void> {
-  const url = buildApiUrl(`/api/chat/admin/providers/${platform}/enable`);
-  await fetchWithAuth(url, { method: "POST" });
-}
-
-export async function disableChatProvider(platform: string): Promise<void> {
-  const url = buildApiUrl(`/api/chat/admin/providers/${platform}/disable`);
-  await fetchWithAuth(url, { method: "POST" });
-}
-
-export async function reloadChatProviderConfig(platform: string): Promise<void> {
-  const url = buildApiUrl(`/api/chat/admin/providers/${platform}/reload`);
-  await fetchWithAuth(url, { method: "POST" });
-}
-
 // ==================== Settings API ====================
 
 export interface SystemSetting {

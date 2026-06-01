@@ -40,13 +40,6 @@
   "integrations": {
     "title": "集成",
     "description": "将 DeepWiki 与您的开发工具连接",
-    "slack": {
-      "title": "Slack 集成",
-      "connected": "已连接",
-      "notConnected": "未连接",
-      "configure": "配置 Slack",
-      "contactAdmin": "请联系管理员配置 Slack 集成。"
-    },
     "mcp": {
       "title": "MCP 服务器",
       "description": "在您的 AI 工具中将 DeepWiki 用作 MCP 服务器。",

@@ -31,7 +31,6 @@ public interface IContext : IDisposable
     DbSet<ChatSession> ChatSessions { get; set; }
     DbSet<ChatMessageHistory> ChatMessageHistories { get; set; }
     DbSet<ChatShareSnapshot> ChatShareSnapshots { get; set; }
-    DbSet<ChatProviderConfig> ChatProviderConfigs { get; set; }
     DbSet<ChatMessageQueue> ChatMessageQueues { get; set; }
     DbSet<UserDepartment> UserDepartments { get; set; }
     DbSet<UserActivity> UserActivities { get; set; }
@@ -84,7 +83,6 @@ public abstract class MasterDbContext : DbContext, IContext
     public DbSet<ChatSession> ChatSessions { get; set; } = null!;
     public DbSet<ChatMessageHistory> ChatMessageHistories { get; set; } = null!;
     public DbSet<ChatShareSnapshot> ChatShareSnapshots { get; set; } = null!;
-    public DbSet<ChatProviderConfig> ChatProviderConfigs { get; set; } = null!;
     public DbSet<ChatMessageQueue> ChatMessageQueues { get; set; } = null!;
     public DbSet<UserDepartment> UserDepartments { get; set; } = null!;
     public DbSet<UserActivity> UserActivities { get; set; } = null!;
@@ -208,11 +206,6 @@ public abstract class MasterDbContext : DbContext, IContext
         // ChatShareSnapshot 过期时间索引
         modelBuilder.Entity<ChatShareSnapshot>()
             .HasIndex(s => s.ExpiresAt);
-
-        // ChatProviderConfig 平台唯一索引
-        modelBuilder.Entity<ChatProviderConfig>()
-            .HasIndex(c => c.Platform)
-            .IsUnique();
 
         // ChatMessageQueue 状态和计划时间索引（用于出队处理）
         modelBuilder.Entity<ChatMessageQueue>()

@@ -1,12 +1,11 @@
 namespace OpenDeepWiki.Chat.Providers;
 
 /// <summary>
-/// 发送结果
+/// Result of a message send operation.
 /// </summary>
 public record SendResult(
     bool Success,
     string? MessageId = null,
     string? ErrorCode = null,
     string? ErrorMessage = null,
-    bool ShouldRetry = false
-);
+    bool ShouldRetry = true);

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useCallback } from "react";
 import {
   Dialog,
   DialogContent,
@@ -10,19 +10,11 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { useTranslations } from "@/hooks/use-translations";
-import { useAuth } from "@/contexts/auth-context";
-import { getChatProviderConfigs } from "@/lib/admin-api";
 import {
   Copy,
   Check,
-  ExternalLink,
-  MessageSquare,
   Server,
-  CheckCircle,
-  XCircle,
-  Loader2,
 } from "lucide-react";
-import Link from "next/link";
 
 interface IntegrationsDialogProps {
   open: boolean;
@@ -31,12 +23,7 @@ interface IntegrationsDialogProps {
 
 export function IntegrationsDialog({ open, onOpenChange }: IntegrationsDialogProps) {
   const t = useTranslations();
-  const { user } = useAuth();
-  const isAdmin = user?.roles?.includes("Admin") ?? false;
 
-  const [slackLoading, setSlackLoading] = useState(false);
-  const [slackConnected, setSlackConnected] = useState(false);
-  const [slackError, setSlackError] = useState(false);
   const [mcpUrlCopied, setMcpUrlCopied] = useState(false);
   const [configCopied, setConfigCopied] = useState(false);
 
@@ -53,26 +40,6 @@ export function IntegrationsDialog({ open, onOpenChange }: IntegrationsDialogPro
     null,
     2
   );
-
-  useEffect(() => {
-    if (!open) return;
-
-    setSlackLoading(true);
-    setSlackError(false);
-    setSlackConnected(false);
-
-    getChatProviderConfigs()
-      .then((providers) => {
-        const slack = providers.find((p) => p.platform === "slack");
-        setSlackConnected(slack ? slack.isEnabled && slack.isRegistered : false);
-      })
-      .catch(() => {
-        setSlackError(true);
-      })
-      .finally(() => {
-        setSlackLoading(false);
-      });
-  }, [open]);
 
   const copyToClipboard = useCallback(async (text: string, type: "url" | "config") => {
     try {
@@ -98,45 +65,6 @@ export function IntegrationsDialog({ open, onOpenChange }: IntegrationsDialogPro
         </DialogHeader>
 
         <div className="space-y-4 pt-2">
-          {/* Slack Integration Section */}
-          <div className="rounded-lg border p-4 space-y-3">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <MessageSquare className="h-5 w-5 text-muted-foreground" />
-                <h3 className="font-medium">{t("home.integrations.slack.title")}</h3>
-              </div>
-              <div className="flex items-center gap-1.5">
-                {slackLoading ? (
-                  <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
-                ) : slackConnected ? (
-                  <>
-                    <CheckCircle className="h-4 w-4 text-green-500" />
-                    <span className="text-sm text-green-500">{t("home.integrations.slack.connected")}</span>
-                  </>
-                ) : (
-                  <>
-                    <XCircle className="h-4 w-4 text-muted-foreground" />
-                    <span className="text-sm text-muted-foreground">{t("home.integrations.slack.notConnected")}</span>
-                  </>
-                )}
-              </div>
-            </div>
-            <div className="text-sm text-muted-foreground">
-              {isAdmin ? (
-                <Link
-                  href="/admin/chat-providers"
-                  className="inline-flex items-center gap-1 text-primary hover:underline"
-                  onClick={() => onOpenChange(false)}
-                >
-                  {t("home.integrations.slack.configure")}
-                  <ExternalLink className="h-3 w-3" />
-                </Link>
-              ) : (
-                <p>{t("home.integrations.slack.contactAdmin")}</p>
-              )}
-            </div>
-          </div>
-
           {/* MCP Server Section */}
           <div className="rounded-lg border p-4 space-y-3">
             <div className="flex items-center gap-2">

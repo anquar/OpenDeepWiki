@@ -4,7 +4,6 @@ using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using OpenDeepWiki.Agents;
 using OpenDeepWiki.Cache.DependencyInjection;
-using OpenDeepWiki.Chat;
 using OpenDeepWiki.MCP;
 using OpenDeepWiki.Endpoints;
 using OpenDeepWiki.Endpoints.Admin;
@@ -329,9 +328,6 @@ try
     // Requirements: 1.1 - 独立的增量更新后台工作器
     builder.Services.AddHostedService<IncrementalUpdateWorker>();
 
-    // 注册 Chat 系统服务
-    // Requirements: 2.2, 2.4 - 通过依赖注入自动发现并加载 Provider
-    builder.Services.AddChatServices(builder.Configuration);
 
     // 注册对话助手服务
     // Requirements: 2.4, 3.1, 9.1 - 对话助手API服务
@@ -453,7 +449,6 @@ try
     app.MapAdminEndpoints();
     app.MapGitHubImportEndpoints();
     app.MapOrganizationEndpoints();
-    app.MapChatAssistantEndpoints();
     app.MapChatAppEndpoints();
     app.MapEmbedEndpoints();
 

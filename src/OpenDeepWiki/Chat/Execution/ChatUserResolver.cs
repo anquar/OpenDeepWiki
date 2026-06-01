@@ -1,9 +1,6 @@
 using System.Collections.Concurrent;
-using System.Net.Http.Headers;
-using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using OpenDeepWiki.Chat.Providers.Slack;
 using OpenDeepWiki.Chat.Routing;
 using OpenDeepWiki.EFCore;
 
@@ -22,16 +19,12 @@ public interface IChatUserResolver
 }
 
 /// <summary>
-/// Resolves Slack (and other platform) user IDs to DeepWiki user IDs by email matching.
+/// Resolves messaging platform user IDs to DeepWiki user IDs by email matching.
 /// Singleton service with in-memory caching.
-/// Reads Slack config from the live SlackProvider (via IMessageRouter) so that
-/// database-backed config changes are picked up automatically.
 /// </summary>
 public class ChatUserResolver : IChatUserResolver
 {
     private readonly IContextFactory _contextFactory;
-    private readonly IMessageRouter _messageRouter;
-    private readonly HttpClient _httpClient;
     private readonly ILogger<ChatUserResolver> _logger;
 
     // Cache: "platform:userId" -> DeepWiki user ID (or null for unmapped)
@@ -40,13 +33,9 @@ public class ChatUserResolver : IChatUserResolver
 
     public ChatUserResolver(
         IContextFactory contextFactory,
-        IMessageRouter messageRouter,
-        HttpClient httpClient,
         ILogger<ChatUserResolver> logger)
     {
         _contextFactory = contextFactory;
-        _messageRouter = messageRouter;
-        _httpClient = httpClient;
         _logger = logger;
     }
 
@@ -67,99 +56,11 @@ public class ChatUserResolver : IChatUserResolver
             return cached.DeepWikiUserId;
         }
 
-        // Resolve based on platform
         string? deepWikiUserId = null;
-        try
-        {
-            var email = platform.ToLowerInvariant() switch
-            {
-                "slack" => await GetSlackUserEmailAsync(platformUserId, cancellationToken),
-                _ => null
-            };
-
-            if (!string.IsNullOrEmpty(email))
-            {
-                deepWikiUserId = await FindDeepWikiUserByEmailAsync(email, cancellationToken);
-
-                if (deepWikiUserId != null)
-                {
-                    _logger.LogInformation(
-                        "Mapped {Platform} user {PlatformUserId} ({Email}) to DeepWiki user {DeepWikiUserId}",
-                        platform, platformUserId, email, deepWikiUserId);
-                }
-                else
-                {
-                    _logger.LogDebug(
-                        "No DeepWiki account found for {Platform} user {PlatformUserId} ({Email})",
-                        platform, platformUserId, email);
-                }
-            }
-            else
-            {
-                _logger.LogDebug(
-                    "Could not resolve email for {Platform} user {PlatformUserId}",
-                    platform, platformUserId);
-            }
-        }
-        catch (Exception ex)
-        {
-            _logger.LogWarning(ex,
-                "Failed to resolve {Platform} user {PlatformUserId} to DeepWiki user",
-                platform, platformUserId);
-        }
 
         // Cache the result (even null = "unmapped")
         _cache[cacheKey] = new CachedResolution(deepWikiUserId, DateTimeOffset.UtcNow.Add(CacheDuration));
         return deepWikiUserId;
-    }
-
-    /// <summary>
-    /// Calls Slack users.info API to get the user's email address.
-    /// Requires users:read.email OAuth scope on the Slack App.
-    /// Reads BotToken from the live SlackProvider registered in the router,
-    /// which reflects database-backed config updates.
-    /// </summary>
-    private async Task<string?> GetSlackUserEmailAsync(string slackUserId, CancellationToken cancellationToken)
-    {
-        var slackProvider = _messageRouter.GetProvider("slack") as SlackProvider;
-        if (slackProvider == null)
-        {
-            _logger.LogWarning("Slack provider not registered, cannot resolve user email");
-            return null;
-        }
-
-        var botToken = slackProvider.ActiveBotToken;
-        var apiBaseUrl = slackProvider.ActiveApiBaseUrl;
-
-        if (string.IsNullOrEmpty(botToken))
-        {
-            _logger.LogWarning("Slack BotToken not configured, cannot resolve user email");
-            return null;
-        }
-
-        var url = $"{apiBaseUrl}/users.info?user={slackUserId}";
-        var request = new HttpRequestMessage(HttpMethod.Get, url);
-        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", botToken);
-
-        var response = await _httpClient.SendAsync(request, cancellationToken);
-        var content = await response.Content.ReadAsStringAsync(cancellationToken);
-        var userInfoResponse = JsonSerializer.Deserialize<SlackUserInfoResponse>(content);
-
-        if (userInfoResponse?.Ok != true)
-        {
-            _logger.LogWarning("Slack users.info failed for {UserId}: {Error}",
-                slackUserId, userInfoResponse?.Error);
-            return null;
-        }
-
-        var email = userInfoResponse.UserInfo?.Profile?.Email;
-        if (string.IsNullOrEmpty(email))
-        {
-            _logger.LogDebug("No email found for Slack user {UserId}. " +
-                "Ensure the Slack App has users:read.email scope.", slackUserId);
-        }
-
-        return email;
     }
 
     /// <summary>
