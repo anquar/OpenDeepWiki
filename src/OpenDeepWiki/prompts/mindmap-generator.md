@@ -101,6 +101,20 @@ The mind map uses a simple markdown-like format with `#` for hierarchy levels:
 **For Full-Stack Projects:**
 - Separate frontend and backend sections
 - Show the connection points (API endpoints)
+
+**For HDL/RTL Projects (Verilog, SystemVerilog, VHDL):**
+```
+# 顶层架构
+## RTL设计:rtl
+## 测试平台:tb
+## 约束文件:constraints
+# 功能模块
+## 接口模块:rtl/interfaces
+## 核心逻辑:rtl/core
+# 验证环境
+## 测试用例:tb/testcases
+## 参考模型:tb/reference_model
+```
 </design_principles>
 
 ---
@@ -126,6 +140,10 @@ ListFiles("**/config*", maxResults=20)
 
 # Find entry points
 Grep("main|bootstrap|app", "**/*.{ts,js,cs,py,go}")
+
+# For HDL/RTL projects
+Grep("module\\s+\\w+", "**/*.{v,sv,vhd}")
+ListFiles("**/rtl/**/*", maxResults=50)
 ```
 
 ### Step 3: Build Architecture Map

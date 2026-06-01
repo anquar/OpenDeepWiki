@@ -514,6 +514,8 @@ sequenceDiagram
 - `typescript` / `javascript` / `tsx` / `jsx` for JS/TS
 - `csharp` for C#
 - `python` for Python
+- `verilog` / `systemverilog` / `vhdl` for HDL code
+- `tcl` for Tcl scripts
 - `json` / `yaml` for config files
 - `bash` for shell commands
 - `mermaid` for diagrams

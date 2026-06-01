@@ -159,7 +159,7 @@ public class RepositorySourceSubmitTests
     }
 
     [Fact]
-    public async Task DeleteRepositoryAsync_ShouldHardDeleteRepositoryAndClearOptionalReferences()
+    public async Task DeleteRepositoryAsync_ShouldSoftDeleteRepositoryAndClearOptionalReferences()
     {
         using var context = CreateContext();
         var repository = new Repository
@@ -192,7 +192,10 @@ public class RepositorySourceSubmitTests
         var deleted = await adminService.DeleteRepositoryAsync(repository.Id);
 
         Assert.True(deleted);
-        Assert.False(await context.Repositories.AnyAsync(r => r.Id == repository.Id));
+        // Soft delete: repository still exists but IsDeleted is true
+        var repo = await context.Repositories.FirstAsync(r => r.Id == repository.Id);
+        Assert.True(repo.IsDeleted);
+        Assert.NotNull(repo.DeletedAt);
         Assert.Null((await context.TokenUsages.SingleAsync()).RepositoryId);
         Assert.Null((await context.UserActivities.SingleAsync()).RepositoryId);
     }

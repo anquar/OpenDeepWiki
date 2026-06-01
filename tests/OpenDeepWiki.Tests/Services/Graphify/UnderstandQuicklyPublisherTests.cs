@@ -119,12 +119,19 @@ public class UnderstandQuicklyPublisherTests
             var graph = Path.Combine(tmp, "graph.json");
             await File.WriteAllTextAsync(graph, "{\"nodes\":[],\"links\":[]}");
 
-            HttpRequestMessage? captured = null;
+            string? capturedBody = null;
+            Uri? capturedUri = null;
+            string? capturedAuthScheme = null;
             var handler = new Mock<HttpMessageHandler>();
             handler.Protected()
                 .Setup<Task<HttpResponseMessage>>("SendAsync",
                     ItExpr.IsAny<HttpRequestMessage>(), ItExpr.IsAny<CancellationToken>())
-                .Callback<HttpRequestMessage, CancellationToken>((req, _) => captured = req)
+                .Callback<HttpRequestMessage, CancellationToken>(async (req, _) =>
+                {
+                    capturedUri = req.RequestUri;
+                    capturedAuthScheme = req.Headers.Authorization?.Scheme;
+                    capturedBody = await req.Content!.ReadAsStringAsync();
+                })
                 .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.NoContent));
 
             var options = Options.Create(new UnderstandQuicklyOptions
@@ -140,12 +147,10 @@ public class UnderstandQuicklyPublisherTests
 
             Assert.True(result.MetadataStamped);
             Assert.True(result.Dispatched);
-            Assert.NotNull(captured);
             Assert.Equal("https://api.github.com/repos/looptech-ai/understand-quickly/dispatches",
-                captured!.RequestUri!.ToString());
-            Assert.Equal("Bearer", captured.Headers.Authorization!.Scheme);
-            var body = await captured.Content!.ReadAsStringAsync();
-            var payload = JsonDocument.Parse(body).RootElement;
+                capturedUri!.ToString());
+            Assert.Equal("Bearer", capturedAuthScheme);
+            var payload = JsonDocument.Parse(capturedBody!).RootElement;
             Assert.Equal("uq-publish", payload.GetProperty("event_type").GetString());
             var clientPayload = payload.GetProperty("client_payload");
             Assert.Equal("looptech-ai/demo", clientPayload.GetProperty("repo").GetString());

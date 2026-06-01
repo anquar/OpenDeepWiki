@@ -1958,6 +1958,13 @@ Translated mind map:";
             File.Exists(Path.Combine(rootDir.FullName, "setup.py")))
             types.Add("python");
 
+        // Check for HDL/RTL projects (Verilog, SystemVerilog, VHDL)
+        if (rootDir.GetFiles("*.v", SearchOption.AllDirectories).Any() ||
+            rootDir.GetFiles("*.sv", SearchOption.AllDirectories).Any() ||
+            rootDir.GetFiles("*.vhd", SearchOption.AllDirectories).Any() ||
+            rootDir.GetFiles("*.vhdl", SearchOption.AllDirectories).Any())
+            types.Add("hdl");
+
         if (types.Count == 0)
             return "unknown";
         if (types.Count > 1)
@@ -2158,6 +2165,31 @@ Translated mind map:";
             entryPoints.AddRange(files.Select(f => Path.GetRelativePath(rootDir.FullName, f.FullName).Replace('\\', '/')));
         }
         
+        if (projectType.Contains("hdl"))
+        {
+            // Find top-level modules, testbenches, and build scripts
+            var hdlEntries = new[] { "top.v", "top.sv", "main.v", "main.sv", "Makefile", "CMakeLists.txt" };
+            foreach (var entry in hdlEntries)
+            {
+                var files = rootDir.GetFiles(entry, SearchOption.AllDirectories)
+                    .Where(f => !f.FullName.Contains("simv") && !f.FullName.Contains(".sim"))
+                    .Take(2);
+                entryPoints.AddRange(files.Select(f => Path.GetRelativePath(rootDir.FullName, f.FullName).Replace('\\', '/')));
+            }
+
+            // Find testbench files
+            var tbFiles = rootDir.GetFiles("*_tb.*", SearchOption.AllDirectories)
+                .Concat(rootDir.GetFiles("tb_*.*", SearchOption.AllDirectories))
+                .Concat(rootDir.GetFiles("testbench*.*", SearchOption.AllDirectories))
+                .Where(f => f.Extension is ".v" or ".sv" or ".vh" or ".svh")
+                .Take(3);
+            entryPoints.AddRange(tbFiles.Select(f => Path.GetRelativePath(rootDir.FullName, f.FullName).Replace('\\', '/')));
+
+            // Find Tcl build scripts
+            var tclFiles = rootDir.GetFiles("*.tcl", SearchOption.AllDirectories).Take(2);
+            entryPoints.AddRange(tclFiles.Select(f => Path.GetRelativePath(rootDir.FullName, f.FullName).Replace('\\', '/')));
+        }
+
         return entryPoints.Distinct().Take(10).ToList();
     }
 

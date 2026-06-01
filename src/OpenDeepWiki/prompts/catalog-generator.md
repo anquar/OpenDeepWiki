@@ -81,9 +81,14 @@ Use tools to find all significant modules:
 # For backend projects
 Grep("class\\s+\\w+(Service|Controller|Repository|Handler)", "**/*.cs")
 
-# For frontend projects  
+# For frontend projects
 ListFiles("**/components/**/*")
 ListFiles("**/app/**/*")
+
+# For HDL/RTL projects (Verilog, SystemVerilog, VHDL)
+Grep("module\\s+\\w+", "**/*.{v,sv,vhd}")
+Grep("parameter\\s+\\w+", "**/*.{v,sv}")
+ListFiles("**/rtl/**/*", maxResults=100)
 
 # General discovery
 ListFiles("src/**/*", maxResults=100)

@@ -55,6 +55,7 @@ public class TestConfigDbContext : DbContext, IContext
     public DbSet<McpUsageLog> McpUsageLogs { get; set; }
     public DbSet<McpDailyStatistics> McpDailyStatistics { get; set; }
     public DbSet<ChatShareSnapshot> ChatShareSnapshots { get; set; } = default!;
+    public DbSet<ApiKey> ApiKeys { get; set; } = null!;
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

@@ -56,6 +56,8 @@ public class TestDbContext : DbContext, IContext
     public DbSet<McpDailyStatistics> McpDailyStatistics { get; set; }
     public DbSet<ChatShareSnapshot> ChatShareSnapshots { get; set; } = default!;
     
+    public DbSet<ApiKey> ApiKeys { get; set; } = null!;
+
     public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
     {
         return base.SaveChangesAsync(cancellationToken);

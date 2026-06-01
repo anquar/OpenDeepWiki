@@ -919,7 +919,15 @@ public class RepositoryAnalyzer : IRepositoryAnalyzer
             ".gradle" => "Groovy",
             ".zig" => "Zig",
             ".nim" => "Nim",
-            ".v" => "V",
+            ".v" => "Verilog",
+            ".sv" => "SystemVerilog",
+            ".svh" => "SystemVerilog",
+            ".vh" => "Verilog Header",
+            ".vhd" => "VHDL",
+            ".vhdl" => "VHDL",
+            ".psl" => "PSL",
+            ".sdc" => "SDC",
+            ".tcl" => "Tcl",
             ".jl" => "Julia",
             _ => null
         };
